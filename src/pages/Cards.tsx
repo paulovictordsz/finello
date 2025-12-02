@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Plus, CreditCard, Trash2, Loader2, Calendar, Pencil } from 'lucide-react';
 import { useCards, type Card } from '../hooks/useCards';
 import { formatCurrency } from '../utils/format';
+import { useAuth } from '../contexts/AuthContext';
 
 
 export default function Cards() {
+    const { user } = useAuth();
     const { cards, isLoading, createCard, deleteCard, updateCard } = useCards();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,6 +37,8 @@ export default function Cards() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         setIsSubmitting(true);
 
         try {
@@ -48,7 +52,10 @@ export default function Cards() {
             if (editingCard) {
                 await updateCard(editingCard.id, payload);
             } else {
-                await createCard(payload);
+                await createCard({
+                    ...payload,
+                    user_id: user.id,
+                });
             }
 
             setIsModalOpen(false);

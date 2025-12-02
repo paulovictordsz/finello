@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export interface Account {
     id: string;
+    user_id: string;
     name: string;
     type: 'CHECKING' | 'SAVINGS' | 'CASH' | 'OTHER';
     initial_balance: number;

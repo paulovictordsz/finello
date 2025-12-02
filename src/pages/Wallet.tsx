@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Plus, Wallet as WalletIcon, Trash2, Loader2, Pencil } from 'lucide-react';
 import { useAccounts, type Account } from '../hooks/useAccounts';
 import { formatCurrency } from '../utils/format';
+import { useAuth } from '../contexts/AuthContext';
 
 
 export default function Wallet() {
+    const { user } = useAuth();
     const { accounts, isLoading, createAccount, deleteAccount, updateAccount } = useAccounts();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingAccount, setEditingAccount] = useState<Account | null>(null);
@@ -36,6 +38,8 @@ export default function Wallet() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         setIsSubmitting(true);
         try {
             if (editingAccount) {
@@ -46,6 +50,7 @@ export default function Wallet() {
                 });
             } else {
                 await createAccount({
+                    user_id: user.id,
                     name: formData.name,
                     type: formData.type,
                     initial_balance: Number(formData.initial_balance),

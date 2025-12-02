@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export interface Card {
     id: string;
+    user_id: string;
     name: string;
     limit_amount: number;
     closing_day: number;
