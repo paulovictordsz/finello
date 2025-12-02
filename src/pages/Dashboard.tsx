@@ -1,6 +1,19 @@
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { useDashboardData } from '../hooks/useDashboardData';
+import { formatCurrency } from '../utils/format';
+import { Loader2 } from 'lucide-react';
 
 const Dashboard = () => {
+    const { totalBalance, monthlyIncome, monthlyExpense, recentTransactions, isLoading } = useDashboardData();
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader2 className="animate-spin text-primary" size={32} />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8">
             {/* Header */}
@@ -29,21 +42,66 @@ const Dashboard = () => {
                 </div>
             </header>
 
-            {/* Content Placeholder */}
+            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-40 flex items-center justify-center text-gray-400">
-                    Total Balance Card
+                <div className="bg-primary text-white p-6 rounded-2xl shadow-lg shadow-primary/20">
+                    <div className="flex items-center gap-3 mb-4 opacity-80">
+                        <Wallet size={20} />
+                        <span className="font-medium">Total Balance</span>
+                    </div>
+                    <h2 className="text-3xl font-bold">{formatCurrency(totalBalance)}</h2>
+                    <p className="text-sm mt-2 opacity-80">Across all accounts</p>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-40 flex items-center justify-center text-gray-400">
-                    Income Card
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-4 text-green-500">
+                        <TrendingUp size={20} />
+                        <span className="font-medium">Monthly Income</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-secondary">{formatCurrency(monthlyIncome)}</h2>
+                    <p className="text-sm text-gray-400 mt-2">This month</p>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-40 flex items-center justify-center text-gray-400">
-                    Expenses Card
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-4 text-red-500">
+                        <TrendingDown size={20} />
+                        <span className="font-medium">Monthly Expenses</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-secondary">{formatCurrency(monthlyExpense)}</h2>
+                    <p className="text-sm text-gray-400 mt-2">This month</p>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-96 flex items-center justify-center text-gray-400">
-                Main Chart Area
+            {/* Recent Transactions */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 className="text-lg font-bold text-secondary mb-6">Recent Transactions</h3>
+                <div className="space-y-4">
+                    {recentTransactions.length === 0 ? (
+                        <p className="text-gray-400 text-center py-8">No transactions found.</p>
+                    ) : (
+                        recentTransactions.map((t) => (
+                            <div key={t.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'INCOME' ? 'bg-green-100 text-green-600' :
+                                            t.type === 'EXPENSE' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                                        }`}>
+                                        {t.type === 'INCOME' ? <TrendingUp size={18} /> :
+                                            t.type === 'EXPENSE' ? <TrendingDown size={18} /> : <Wallet size={18} />}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-secondary">{t.description}</p>
+                                        <p className="text-sm text-gray-400">{new Date(t.date).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <span className={`font-bold ${t.type === 'INCOME' ? 'text-green-600' :
+                                        t.type === 'EXPENSE' ? 'text-red-600' : 'text-blue-600'
+                                    }`}>
+                                    {t.type === 'EXPENSE' ? '-' : '+'}{formatCurrency(t.amount)}
+                                </span>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );
