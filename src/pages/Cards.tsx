@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Plus, CreditCard, Trash2, Loader2, Calendar } from 'lucide-react';
-import { useCards } from '../hooks/useCards';
+import { Plus, CreditCard, Trash2, Loader2, Calendar, Pencil } from 'lucide-react';
+import { useCards, type Card } from '../hooks/useCards';
 import { formatCurrency } from '../utils/format';
 
 
 export default function Cards() {
-    const { cards, isLoading, createCard, deleteCard } = useCards();
+    const { cards, isLoading, createCard, deleteCard, updateCard } = useCards();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingCard, setEditingCard] = useState<Card | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -16,21 +17,45 @@ export default function Cards() {
         due_day: '',
     });
 
+    const handleOpenModal = (card?: Card) => {
+        if (card) {
+            setEditingCard(card);
+            setFormData({
+                name: card.name,
+                limit_amount: card.limit_amount.toString(),
+                closing_day: card.closing_day.toString(),
+                due_day: card.due_day.toString(),
+            });
+        } else {
+            setEditingCard(null);
+            setFormData({ name: '', limit_amount: '', closing_day: '', due_day: '' });
+        }
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-            await createCard({
+            const payload = {
                 name: formData.name,
                 limit_amount: Number(formData.limit_amount),
                 closing_day: Number(formData.closing_day),
                 due_day: Number(formData.due_day),
-            });
+            };
+
+            if (editingCard) {
+                await updateCard(editingCard.id, payload);
+            } else {
+                await createCard(payload);
+            }
+
             setIsModalOpen(false);
+            setEditingCard(null);
             setFormData({ name: '', limit_amount: '', closing_day: '', due_day: '' });
         } catch (error) {
-            console.error('Failed to create card:', error);
+            console.error('Failed to save card:', error);
         } finally {
             setIsSubmitting(false);
         }
@@ -58,7 +83,7 @@ export default function Cards() {
                     <p className="text-gray-500 text-sm mt-1">Manage your credit cards and limits</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => handleOpenModal()}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
@@ -73,12 +98,20 @@ export default function Cards() {
                             <div className="p-3 bg-purple-100 rounded-xl text-purple-600">
                                 <CreditCard size={24} />
                             </div>
-                            <button
-                                onClick={() => handleDelete(card.id)}
-                                className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => handleOpenModal(card)}
+                                    className="text-gray-400 hover:text-primary"
+                                >
+                                    <Pencil size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(card.id)}
+                                    className="text-gray-400 hover:text-red-500"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         <h3 className="font-bold text-lg text-secondary mb-1">{card.name}</h3>
@@ -106,11 +139,13 @@ export default function Cards() {
                 )}
             </div>
 
-            {/* Add Card Modal */}
+            {/* Add/Edit Card Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6">
-                        <h2 className="text-xl font-bold text-secondary mb-4">Add New Card</h2>
+                        <h2 className="text-xl font-bold text-secondary mb-4">
+                            {editingCard ? 'Edit Card' : 'Add New Card'}
+                        </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Card Name</label>
@@ -174,7 +209,7 @@ export default function Cards() {
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save Card'}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingCard ? 'Save Changes' : 'Save Card')}
                                 </button>
                             </div>
                         </form>

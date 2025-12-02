@@ -34,11 +34,18 @@ export function useAccounts() {
         mutate();
     };
 
+    const updateAccount = async (id: string, updates: Partial<Omit<Account, 'id' | 'created_at'>>) => {
+        const { error } = await supabase.from('accounts').update(updates).eq('id', id);
+        if (error) throw error;
+        mutate();
+    };
+
     return {
         accounts: data,
         isLoading,
         isError: error,
         createAccount,
         deleteAccount,
+        updateAccount,
     };
 }

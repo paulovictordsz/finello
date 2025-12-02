@@ -34,11 +34,18 @@ export function useCards() {
         mutate();
     };
 
+    const updateCard = async (id: string, updates: Partial<Omit<Card, 'id'>>) => {
+        const { error } = await supabase.from('cards').update(updates).eq('id', id);
+        if (error) throw error;
+        mutate();
+    };
+
     return {
         cards: data,
         isLoading,
         isError: error,
         createCard,
         deleteCard,
+        updateCard,
     };
 }

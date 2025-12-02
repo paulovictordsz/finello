@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Plus, ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Trash2, Loader2, Filter } from 'lucide-react';
-import { useTransactions } from '../hooks/useTransactions';
+import { Plus, ArrowUpRight, ArrowDownLeft, ArrowRightLeft, Trash2, Loader2, Filter, Pencil } from 'lucide-react';
+import { useTransactions, type Transaction } from '../hooks/useTransactions';
 import { useAccounts } from '../hooks/useAccounts';
 import { useCategories } from '../hooks/useCategories';
 import { formatCurrency } from '../utils/format';
@@ -10,12 +10,13 @@ import { format } from 'date-fns';
 
 export default function Transactions() {
     const { user } = useAuth();
-    const { transactions, isLoading, createTransaction, deleteTransaction } = useTransactions();
+    const { transactions, isLoading, createTransaction, deleteTransaction, updateTransaction } = useTransactions();
     const { accounts } = useAccounts();
     const { categories } = useCategories();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
     const [formData, setFormData] = useState({
         type: 'EXPENSE' as 'INCOME' | 'EXPENSE' | 'TRANSFER',
@@ -26,6 +27,33 @@ export default function Transactions() {
         category_id: '',
         to_account_id: '', // For Transfer
     });
+
+    const handleOpenModal = (transaction?: Transaction) => {
+        if (transaction) {
+            setEditingTransaction(transaction);
+            setFormData({
+                type: transaction.type,
+                amount: transaction.amount.toString(),
+                date: transaction.date.split('T')[0],
+                description: transaction.description || '',
+                account_id: transaction.account_id || transaction.from_account_id || '',
+                category_id: transaction.category_id || '',
+                to_account_id: transaction.to_account_id || '',
+            });
+        } else {
+            setEditingTransaction(null);
+            setFormData({
+                type: 'EXPENSE',
+                amount: '',
+                date: new Date().toISOString().split('T')[0],
+                description: '',
+                account_id: '',
+                category_id: '',
+                to_account_id: '',
+            });
+        }
+        setIsModalOpen(true);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,13 +71,23 @@ export default function Transactions() {
             if (formData.type === 'TRANSFER') {
                 payload.from_account_id = formData.account_id;
                 payload.to_account_id = formData.to_account_id;
+                payload.account_id = null;
+                payload.category_id = null;
             } else {
                 payload.account_id = formData.account_id;
                 payload.category_id = formData.category_id;
+                payload.from_account_id = null;
+                payload.to_account_id = null;
             }
 
-            await createTransaction(payload);
+            if (editingTransaction) {
+                await updateTransaction(editingTransaction.id, payload);
+            } else {
+                await createTransaction(payload);
+            }
+
             setIsModalOpen(false);
+            setEditingTransaction(null);
             setFormData({
                 type: 'EXPENSE',
                 amount: '',
@@ -60,7 +98,7 @@ export default function Transactions() {
                 to_account_id: '',
             });
         } catch (error) {
-            console.error('Failed to create transaction:', error);
+            console.error('Failed to save transaction:', error);
         } finally {
             setIsSubmitting(false);
         }
@@ -88,7 +126,7 @@ export default function Transactions() {
                     <p className="text-gray-500 text-sm mt-1">Track your income and expenses</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => handleOpenModal()}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
@@ -136,12 +174,20 @@ export default function Transactions() {
                                 )}>
                                     {t.type === 'EXPENSE' ? '-' : '+'} {formatCurrency(t.amount)}
                                 </span>
-                                <button
-                                    onClick={() => handleDelete(t.id)}
-                                    className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => handleOpenModal(t)}
+                                        className="text-gray-300 hover:text-primary"
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(t.id)}
+                                        className="text-gray-300 hover:text-red-500"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -154,11 +200,13 @@ export default function Transactions() {
                 </div>
             </div>
 
-            {/* Add Transaction Modal */}
+            {/* Add/Edit Transaction Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-                        <h2 className="text-xl font-bold text-secondary mb-4">New Transaction</h2>
+                        <h2 className="text-xl font-bold text-secondary mb-4">
+                            {editingTransaction ? 'Edit Transaction' : 'New Transaction'}
+                        </h2>
 
                         <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
                             {['EXPENSE', 'INCOME', 'TRANSFER'].map((type) => (
@@ -282,7 +330,7 @@ export default function Transactions() {
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save'}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingTransaction ? 'Save Changes' : 'Save')}
                                 </button>
                             </div>
                         </form>

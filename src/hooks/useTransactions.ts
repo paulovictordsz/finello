@@ -47,11 +47,18 @@ export function useTransactions() {
         mutate();
     };
 
+    const updateTransaction = async (id: string, updates: any) => {
+        const { error } = await supabase.from('transactions').update(updates).eq('id', id);
+        if (error) throw error;
+        mutate();
+    };
+
     return {
         transactions: data,
         isLoading,
         isError: error,
         createTransaction,
         deleteTransaction,
+        updateTransaction,
     };
 }
