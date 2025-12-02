@@ -12,7 +12,7 @@ import Onboarding from './pages/Onboarding';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -27,6 +27,12 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // If children are provided (like for Onboarding), render them directly
+  if (children) {
+    return <>{children}</>;
+  }
+
+  // Otherwise render the Layout with Outlet (for main app routes)
   return (
     <Layout>
       <Outlet />
