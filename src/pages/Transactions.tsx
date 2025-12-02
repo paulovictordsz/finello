@@ -174,7 +174,7 @@ export default function Transactions() {
                                 )}>
                                     {t.type === 'EXPENSE' ? '-' : '+'} {formatCurrency(t.amount)}
                                 </span>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleOpenModal(t)}
                                         className="text-gray-300 hover:text-primary"

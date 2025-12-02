@@ -98,7 +98,7 @@ export default function Cards() {
                             <div className="p-3 bg-purple-100 rounded-xl text-purple-600">
                                 <CreditCard size={24} />
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => handleOpenModal(card)}
                                     className="text-gray-400 hover:text-primary"

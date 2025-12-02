@@ -102,7 +102,9 @@ export default function Wallet() {
                             <div className="p-3 bg-primary/10 rounded-xl text-primary">
                                 <WalletIcon size={24} />
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                            {/* Desktop Actions (Hover) */}
+                            <div className="hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => handleOpenModal(account)}
                                     className="text-gray-400 hover:text-primary"
@@ -112,6 +114,22 @@ export default function Wallet() {
                                 <button
                                     onClick={() => handleDelete(account.id)}
                                     className="text-gray-400 hover:text-red-500"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+
+                            {/* Mobile Actions (Always Visible) */}
+                            <div className="md:hidden flex gap-3">
+                                <button
+                                    onClick={() => handleOpenModal(account)}
+                                    className="text-gray-400"
+                                >
+                                    <Pencil size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(account.id)}
+                                    className="text-gray-400"
                                 >
                                     <Trash2 size={18} />
                                 </button>
