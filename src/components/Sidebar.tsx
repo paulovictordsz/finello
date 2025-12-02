@@ -34,10 +34,10 @@ const Sidebar = () => {
         >
             <div className="p-6 flex items-center justify-between h-20">
                 {!isCollapsed && (
-                    <img src="/Logo_Horizontal.svg" alt="Finelo" className="h-8" />
+                    <img src="/Logo_Horizontal.svg" alt="Finello" className="h-8" />
                 )}
                 {isCollapsed && (
-                    <img src="/Ico.svg" alt="Finelo" className="h-8 mx-auto" />
+                    <img src="/Ico.svg" alt="Finello" className="h-8 mx-auto" />
                 )}
 
                 <button

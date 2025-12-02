@@ -34,7 +34,7 @@ export default function Login() {
         <div className="min-h-screen flex items-center justify-center bg-cream p-4">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
                 <div className="text-center mb-8">
-                    <img src="/Logo_Horizontal.svg" alt="Finelo" className="h-10 mx-auto mb-4" />
+                    <img src="/Logo_Horizontal.svg" alt="Finello" className="h-10 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-secondary">Welcome Back</h1>
                     <p className="text-gray-500">Sign in to manage your finances</p>
                 </div>
