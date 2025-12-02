@@ -68,21 +68,21 @@ export default function Forecast() {
         <div className="space-y-8">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">Financial Forecast</h1>
-                    <p className="text-gray-500 text-sm mt-1">Project your balance for the next 12 months</p>
+                    <h1 className="text-2xl font-bold text-secondary">Previsão Financeira</h1>
+                    <p className="text-gray-500 text-sm mt-1">Projete seu saldo para os próximos 12 meses</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
-                    Add Recurring Item
+                    Adicionar Item Recorrente
                 </button>
             </header>
 
             {/* Chart Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-96">
-                <h3 className="font-bold text-secondary mb-6">Balance Projection</h3>
+                <h3 className="font-bold text-secondary mb-6">Projeção de Saldo</h3>
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={forecast}>
                         <defs>
@@ -107,7 +107,7 @@ export default function Forecast() {
                         />
                         <Tooltip
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            formatter={(value: number) => [formatCurrency(value), 'Balance']}
+                            formatter={(value: number) => [formatCurrency(value), 'Saldo']}
                         />
                         <Area
                             type="monotone"
@@ -124,17 +124,17 @@ export default function Forecast() {
             {/* Forecast Table */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-4 border-b border-gray-50">
-                    <h3 className="font-bold text-secondary">Monthly Breakdown</h3>
+                    <h3 className="font-bold text-secondary">Detalhamento Mensal</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500">
                             <tr>
-                                <th className="px-6 py-3 font-medium">Month</th>
-                                <th className="px-6 py-3 font-medium">Starting</th>
-                                <th className="px-6 py-3 font-medium text-green-600">Income</th>
-                                <th className="px-6 py-3 font-medium text-red-600">Expense</th>
-                                <th className="px-6 py-3 font-medium">Ending Balance</th>
+                                <th className="px-6 py-3 font-medium">Mês</th>
+                                <th className="px-6 py-3 font-medium">Inicial</th>
+                                <th className="px-6 py-3 font-medium text-green-600">Receita</th>
+                                <th className="px-6 py-3 font-medium text-red-600">Despesa</th>
+                                <th className="px-6 py-3 font-medium">Saldo Final</th>
                                 <th className="px-6 py-3 font-medium">Status</th>
                             </tr>
                         </thead>
@@ -154,11 +154,11 @@ export default function Forecast() {
                                     <td className="px-6 py-4">
                                         {month.isNegative ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-100 text-red-600 text-xs font-medium">
-                                                <AlertTriangle size={12} /> Critical
+                                                <AlertTriangle size={12} /> Crítico
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-100 text-green-600 text-xs font-medium">
-                                                <TrendingUp size={12} /> Healthy
+                                                <TrendingUp size={12} /> Saudável
                                             </span>
                                         )}
                                     </td>
@@ -173,7 +173,7 @@ export default function Forecast() {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6">
-                        <h2 className="text-xl font-bold text-secondary mb-4">Add Recurring Item</h2>
+                        <h2 className="text-xl font-bold text-secondary mb-4">Adicionar Item Recorrente</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
                                 {['EXPENSE', 'INCOME'].map((type) => (
@@ -188,25 +188,25 @@ export default function Forecast() {
                                                 : "text-gray-500 hover:text-secondary"
                                         )}
                                     >
-                                        {type.charAt(0) + type.slice(1).toLowerCase()}
+                                        {type === 'EXPENSE' ? 'Despesa' : 'Receita'}
                                     </button>
                                 ))}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
                                 <input
                                     type="text"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                    placeholder="e.g., Rent, Salary"
+                                    placeholder="Ex: Aluguel, Salário"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -218,7 +218,7 @@ export default function Forecast() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
                                 <input
                                     type="date"
                                     value={formData.start_date}
@@ -229,14 +229,14 @@ export default function Forecast() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                                 <select
                                     value={formData.category_id}
                                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                                     required
                                 >
-                                    <option value="">Select Category</option>
+                                    <option value="">Selecione a Categoria</option>
                                     {categories
                                         ?.filter(c => c.type === formData.type)
                                         .map((cat) => (
@@ -251,14 +251,14 @@ export default function Forecast() {
                                     onClick={() => setIsModalOpen(false)}
                                     className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium"
                                 >
-                                    Cancel
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save'}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Salvar'}
                                 </button>
                             </div>
                         </form>

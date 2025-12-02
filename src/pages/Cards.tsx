@@ -69,7 +69,7 @@ export default function Cards() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm('Delete this card?')) {
+        if (confirm('Tem certeza que deseja excluir este cartão?')) {
             await deleteCard(id);
         }
     };
@@ -86,15 +86,15 @@ export default function Cards() {
         <div className="space-y-8">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">Credit Cards</h1>
-                    <p className="text-gray-500 text-sm mt-1">Manage your credit cards and limits</p>
+                    <h1 className="text-2xl font-bold text-secondary">Cartões de Crédito</h1>
+                    <p className="text-gray-500 text-sm mt-1">Gerencie seus cartões e limites</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
-                    Add Card
+                    Novo Cartão
                 </button>
             </header>
 
@@ -122,17 +122,17 @@ export default function Cards() {
                         </div>
 
                         <h3 className="font-bold text-lg text-secondary mb-1">{card.name}</h3>
-                        <p className="text-sm text-gray-500 mb-4">Limit: {formatCurrency(card.limit_amount)}</p>
+                        <p className="text-sm text-gray-500 mb-4">Limite: {formatCurrency(card.limit_amount)}</p>
 
                         <div className="flex items-center gap-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-xl">
                             <div className="flex items-center gap-2">
                                 <Calendar size={14} className="text-gray-400" />
-                                <span>Closes: {card.closing_day}th</span>
+                                <span>Fecha: dia {card.closing_day}</span>
                             </div>
                             <div className="w-px h-4 bg-gray-300"></div>
                             <div className="flex items-center gap-2">
                                 <Calendar size={14} className="text-gray-400" />
-                                <span>Due: {card.due_day}th</span>
+                                <span>Vence: dia {card.due_day}</span>
                             </div>
                         </div>
                     </div>
@@ -141,7 +141,7 @@ export default function Cards() {
                 {cards?.length === 0 && (
                     <div className="col-span-full flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-dashed border-gray-300 text-gray-400">
                         <CreditCard size={48} className="mb-4 opacity-50" />
-                        <p>No credit cards found.</p>
+                        <p>Nenhum cartão encontrado.</p>
                     </div>
                 )}
             </div>
@@ -151,22 +151,22 @@ export default function Cards() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6">
                         <h2 className="text-xl font-bold text-secondary mb-4">
-                            {editingCard ? 'Edit Card' : 'Add New Card'}
+                            {editingCard ? 'Editar Cartão' : 'Novo Cartão'}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Card Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cartão</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                    placeholder="e.g., Nubank"
+                                    placeholder="Ex: Nubank"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Limit Amount</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Limite</label>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -178,7 +178,7 @@ export default function Cards() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Closing Day</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Dia Fechamento</label>
                                     <input
                                         type="number"
                                         min="1"
@@ -190,7 +190,7 @@ export default function Cards() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Due Day</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Dia Vencimento</label>
                                     <input
                                         type="number"
                                         min="1"
@@ -209,14 +209,14 @@ export default function Cards() {
                                     onClick={() => setIsModalOpen(false)}
                                     className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium"
                                 >
-                                    Cancel
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingCard ? 'Save Changes' : 'Save Card')}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingCard ? 'Salvar Alterações' : 'Salvar Cartão')}
                                 </button>
                             </div>
                         </form>

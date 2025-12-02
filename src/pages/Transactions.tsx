@@ -7,6 +7,8 @@ import { formatCurrency } from '../utils/format';
 import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import CurrencyInput from '../components/CurrencyInput';
 
 export default function Transactions() {
     const { user } = useAuth();
@@ -57,11 +59,13 @@ export default function Transactions() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         setIsSubmitting(true);
 
         try {
             const payload: any = {
-                user_id: user?.id,
+                user_id: user.id,
                 type: formData.type,
                 amount: Number(formData.amount),
                 date: formData.date,
@@ -69,13 +73,13 @@ export default function Transactions() {
             };
 
             if (formData.type === 'TRANSFER') {
-                payload.from_account_id = formData.account_id;
-                payload.to_account_id = formData.to_account_id;
+                payload.from_account_id = formData.account_id || null;
+                payload.to_account_id = formData.to_account_id || null;
                 payload.account_id = null;
                 payload.category_id = null;
             } else {
-                payload.account_id = formData.account_id;
-                payload.category_id = formData.category_id;
+                payload.account_id = formData.account_id || null;
+                payload.category_id = formData.category_id || null;
                 payload.from_account_id = null;
                 payload.to_account_id = null;
             }
@@ -105,7 +109,7 @@ export default function Transactions() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm('Delete this transaction?')) {
+        if (confirm('Tem certeza que deseja excluir esta transação?')) {
             await deleteTransaction(id);
         }
     };
@@ -122,22 +126,22 @@ export default function Transactions() {
         <div className="space-y-8">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">Transactions</h1>
-                    <p className="text-gray-500 text-sm mt-1">Track your income and expenses</p>
+                    <h1 className="text-2xl font-bold text-secondary">Transações</h1>
+                    <p className="text-gray-500 text-sm mt-1">Acompanhe suas receitas e despesas</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
-                    Add Transaction
+                    Nova Transação
                 </button>
             </header>
 
             {/* Transactions List */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-4 border-b border-gray-50 flex items-center justify-between">
-                    <h3 className="font-bold text-secondary">Recent Activity</h3>
+                    <h3 className="font-bold text-secondary">Atividade Recente</h3>
                     <button className="text-gray-400 hover:text-primary">
                         <Filter size={20} />
                     </button>
@@ -159,10 +163,10 @@ export default function Transactions() {
                                 </div>
                                 <div>
                                     <p className="font-medium text-secondary">
-                                        {t.description || t.category?.name || 'Transfer'}
+                                        {t.description || t.category?.name || 'Transferência'}
                                     </p>
                                     <p className="text-xs text-gray-400">
-                                        {format(new Date(t.date), 'MMM dd, yyyy')} • {t.account?.name}
+                                        {format(new Date(t.date), "dd 'de' MMM, yyyy", { locale: ptBR })} • {t.account?.name}
                                     </p>
                                 </div>
                             </div>
@@ -194,7 +198,7 @@ export default function Transactions() {
 
                     {transactions?.length === 0 && (
                         <div className="p-8 text-center text-gray-400">
-                            No transactions found.
+                            Nenhuma transação encontrada.
                         </div>
                     )}
                 </div>
@@ -205,42 +209,44 @@ export default function Transactions() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold text-secondary mb-4">
-                            {editingTransaction ? 'Edit Transaction' : 'New Transaction'}
+                            {editingTransaction ? 'Editar Transação' : 'Nova Transação'}
                         </h2>
 
                         <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
-                            {['EXPENSE', 'INCOME', 'TRANSFER'].map((type) => (
+                            {[
+                                { id: 'EXPENSE', label: 'Despesa' },
+                                { id: 'INCOME', label: 'Receita' },
+                                { id: 'TRANSFER', label: 'Transferência' }
+                            ].map((type) => (
                                 <button
-                                    key={type}
-                                    onClick={() => setFormData({ ...formData, type: type as any })}
+                                    key={type.id}
+                                    onClick={() => setFormData({ ...formData, type: type.id as any })}
                                     className={clsx(
                                         "flex-1 py-2 rounded-lg text-sm font-medium transition-all",
-                                        formData.type === type
+                                        formData.type === type.id
                                             ? "bg-white text-secondary shadow-sm"
                                             : "text-gray-500 hover:text-secondary"
                                     )}
                                 >
-                                    {type.charAt(0) + type.slice(1).toLowerCase()}
+                                    {type.label}
                                 </button>
                             ))}
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                                <CurrencyInput
                                     value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                    onChange={(val) => setFormData({ ...formData, amount: val.toString() })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg font-bold"
-                                    placeholder="0.00"
+                                    placeholder="R$ 0,00"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
                                 <input
                                     type="date"
                                     value={formData.date}
@@ -251,20 +257,20 @@ export default function Transactions() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
                                 <input
                                     type="text"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                    placeholder="e.g., Grocery shopping"
+                                    placeholder="Ex: Compras no mercado"
                                 />
                             </div>
 
                             {/* Account Selection */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {formData.type === 'TRANSFER' ? 'From Account' : 'Account'}
+                                    {formData.type === 'TRANSFER' ? 'Conta de Origem' : 'Conta'}
                                 </label>
                                 <select
                                     value={formData.account_id}
@@ -272,7 +278,7 @@ export default function Transactions() {
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                                     required
                                 >
-                                    <option value="">Select Account</option>
+                                    <option value="">Selecione a Conta</option>
                                     {accounts?.map((acc) => (
                                         <option key={acc.id} value={acc.id}>{acc.name}</option>
                                     ))}
@@ -282,14 +288,14 @@ export default function Transactions() {
                             {/* Transfer Destination */}
                             {formData.type === 'TRANSFER' && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">To Account</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Conta de Destino</label>
                                     <select
                                         value={formData.to_account_id}
                                         onChange={(e) => setFormData({ ...formData, to_account_id: e.target.value })}
                                         className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                                         required
                                     >
-                                        <option value="">Select Destination</option>
+                                        <option value="">Selecione o Destino</option>
                                         {accounts?.filter(a => a.id !== formData.account_id).map((acc) => (
                                             <option key={acc.id} value={acc.id}>{acc.name}</option>
                                         ))}
@@ -300,14 +306,14 @@ export default function Transactions() {
                             {/* Category Selection (Not for Transfer) */}
                             {formData.type !== 'TRANSFER' && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                                     <select
                                         value={formData.category_id}
                                         onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                                         className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                                         required
                                     >
-                                        <option value="">Select Category</option>
+                                        <option value="">Selecione a Categoria</option>
                                         {categories
                                             ?.filter(c => c.type === formData.type)
                                             .map((cat) => (
@@ -323,14 +329,14 @@ export default function Transactions() {
                                     onClick={() => setIsModalOpen(false)}
                                     className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium"
                                 >
-                                    Cancel
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingTransaction ? 'Save Changes' : 'Save')}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingTransaction ? 'Salvar Alterações' : 'Salvar')}
                                 </button>
                             </div>
                         </form>

@@ -17,16 +17,22 @@ export interface Transaction {
 }
 
 const fetcher = async () => {
+    console.log('Fetching transactions...');
+    // We need to specify the foreign key for the account join because there are multiple FKs to accounts
     const { data, error } = await supabase
         .from('transactions')
         .select(`
       *,
       category:categories(name, icon),
-      account:accounts(name)
+      account:accounts!account_id(name)
     `)
         .order('date', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+        console.error('Error fetching transactions:', JSON.stringify(error, null, 2));
+        throw error;
+    }
+    console.log('Transactions fetched:', data);
     return data as Transaction[];
 };
 

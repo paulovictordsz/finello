@@ -23,12 +23,12 @@ const Sidebar = ({ isDesktopCollapsed, onDesktopToggle }: SidebarProps) => {
     const { signOut } = useAuth();
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: Wallet, label: 'Wallet', path: '/wallet' },
-        { icon: PieChart, label: 'Analytics', path: '/forecast' },
-        { icon: CreditCard, label: 'Cards', path: '/cards' },
-        { icon: ArrowLeftRight, label: 'Transactions', path: '/transactions' },
-        { icon: Settings, label: 'Settings', path: '/settings' },
+        { icon: LayoutDashboard, label: 'Início', path: '/' },
+        { icon: Wallet, label: 'Carteira', path: '/wallet' },
+        { icon: PieChart, label: 'Análises', path: '/forecast' },
+        { icon: CreditCard, label: 'Cartões', path: '/cards' },
+        { icon: ArrowLeftRight, label: 'Transações', path: '/transactions' },
+        { icon: Settings, label: 'Configurações', path: '/settings' },
     ];
 
     const SidebarContent = () => (
@@ -81,7 +81,7 @@ const Sidebar = ({ isDesktopCollapsed, onDesktopToggle }: SidebarProps) => {
                     )}
                 >
                     <LogOut size={20} />
-                    {!isDesktopCollapsed && <span className="font-medium text-sm">Logout</span>}
+                    {!isDesktopCollapsed && <span className="font-medium text-sm">Sair</span>}
                 </button>
             </div>
         </div>

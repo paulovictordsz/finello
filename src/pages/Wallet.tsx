@@ -67,13 +67,23 @@ export default function Wallet() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this account?')) {
+        if (confirm('Tem certeza que deseja excluir esta conta?')) {
             try {
                 await deleteAccount(id);
             } catch (error) {
                 console.error('Failed to delete account:', error);
             }
         }
+    };
+
+    const getAccountTypeLabel = (type: string) => {
+        const types: Record<string, string> = {
+            CHECKING: 'Conta Corrente',
+            SAVINGS: 'Poupança',
+            CASH: 'Dinheiro',
+            OTHER: 'Outro'
+        };
+        return types[type] || type;
     };
 
     if (isLoading) {
@@ -88,15 +98,15 @@ export default function Wallet() {
         <div className="space-y-8">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">My Wallet</h1>
-                    <p className="text-gray-500 text-sm mt-1">Manage your accounts and balances</p>
+                    <h1 className="text-2xl font-bold text-secondary">Minha Carteira</h1>
+                    <p className="text-gray-500 text-sm mt-1">Gerencie suas contas e saldos</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
                     className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
-                    Add Account
+                    Nova Conta
                 </button>
             </header>
 
@@ -146,7 +156,7 @@ export default function Wallet() {
                                 {formatCurrency(account.initial_balance)}
                             </p>
                             <span className="inline-block mt-2 text-xs px-2 py-1 rounded-md bg-gray-100 text-gray-600 font-medium">
-                                {account.type}
+                                {getAccountTypeLabel(account.type)}
                             </span>
                         </div>
                     </div>
@@ -155,7 +165,7 @@ export default function Wallet() {
                 {accounts?.length === 0 && (
                     <div className="col-span-full flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-dashed border-gray-300 text-gray-400">
                         <WalletIcon size={48} className="mb-4 opacity-50" />
-                        <p>No accounts found. Create one to get started!</p>
+                        <p>Nenhuma conta encontrada. Crie uma para começar!</p>
                     </div>
                 )}
             </div>
@@ -165,35 +175,35 @@ export default function Wallet() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6">
                         <h2 className="text-xl font-bold text-secondary mb-4">
-                            {editingAccount ? 'Edit Account' : 'Add New Account'}
+                            {editingAccount ? 'Editar Conta' : 'Nova Conta'}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Conta</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                    placeholder="e.g., Main Checking"
+                                    placeholder="Ex: Conta Principal"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
                                 <select
                                     value={formData.type}
                                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
                                 >
-                                    <option value="CHECKING">Checking</option>
-                                    <option value="SAVINGS">Savings</option>
-                                    <option value="CASH">Cash</option>
-                                    <option value="OTHER">Other</option>
+                                    <option value="CHECKING">Conta Corrente</option>
+                                    <option value="SAVINGS">Poupança</option>
+                                    <option value="CASH">Dinheiro</option>
+                                    <option value="OTHER">Outro</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Initial Balance</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Saldo Inicial</label>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -209,14 +219,14 @@ export default function Wallet() {
                                     onClick={() => setIsModalOpen(false)}
                                     className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium"
                                 >
-                                    Cancel
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
                                     className="flex-1 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center justify-center"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingAccount ? 'Save Changes' : 'Create Account')}
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingAccount ? 'Salvar Alterações' : 'Criar Conta')}
                                 </button>
                             </div>
                         </form>

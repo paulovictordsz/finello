@@ -5,11 +5,11 @@ import { Fragment } from 'react';
 
 export default function MobileNavbar() {
     const navItems = [
-        { icon: LayoutDashboard, label: 'Home', path: '/' },
-        { icon: Wallet, label: 'Wallet', path: '/wallet' },
-        { icon: ArrowRightLeft, label: 'Transact', path: '/transactions', isPrimary: true },
-        { icon: CreditCard, label: 'Cards', path: '/cards' },
-        { icon: TrendingUp, label: 'Analytics', path: '/forecast' },
+        { icon: LayoutDashboard, label: 'Início', path: '/' },
+        { icon: Wallet, label: 'Carteira', path: '/wallet' },
+        { icon: ArrowRightLeft, label: 'Transações', path: '/transactions', isPrimary: true },
+        { icon: CreditCard, label: 'Cartões', path: '/cards' },
+        { icon: TrendingUp, label: 'Análises', path: '/forecast' },
     ];
 
     return (

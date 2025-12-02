@@ -35,8 +35,8 @@ export default function Login() {
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
                 <div className="text-center mb-8">
                     <img src="/Logo_Horizontal.svg" alt="Finello" className="h-10 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-secondary">Welcome Back</h1>
-                    <p className="text-gray-500">Sign in to manage your finances</p>
+                    <h1 className="text-2xl font-bold text-secondary">Bem-vindo de volta</h1>
+                    <p className="text-gray-500">Faça login para gerenciar suas finanças</p>
                 </div>
 
                 {error && (
@@ -47,7 +47,7 @@ export default function Login() {
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
                         <input
                             type="email"
                             value={email}
@@ -57,7 +57,7 @@ export default function Login() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
                         <input
                             type="password"
                             value={password}
@@ -72,14 +72,14 @@ export default function Login() {
                         disabled={loading}
                         className="w-full bg-primary text-white py-2 rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center"
                     >
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Entrar'}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-500">
-                    Don't have an account?{' '}
+                    Não tem uma conta?{' '}
                     <Link to="/register" className="text-primary font-medium hover:underline">
-                        Sign up
+                        Cadastre-se
                     </Link>
                 </div>
             </div>

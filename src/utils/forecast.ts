@@ -1,10 +1,11 @@
 import { addMonths, startOfMonth, format, isBefore, isAfter, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import type { Account } from '../hooks/useAccounts';
 import type { Recurring } from '../hooks/useRecurrings';
 
 export interface MonthlyForecast {
     month: string; // YYYY-MM
-    label: string; // Oct 2025
+    label: string; // Out 2025
     startingBalance: number;
     income: number;
     expense: number;
@@ -26,7 +27,7 @@ export function calculateForecast(
     for (let i = 0; i < monthsToProject; i++) {
         const currentMonthDate = addMonths(today, i);
         const monthKey = format(currentMonthDate, 'yyyy-MM');
-        const monthLabel = format(currentMonthDate, 'MMM yyyy');
+        const monthLabel = format(currentMonthDate, 'MMM yyyy', { locale: ptBR });
 
         let monthlyIncome = 0;
         let monthlyExpense = 0;

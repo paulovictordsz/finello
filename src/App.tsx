@@ -8,6 +8,7 @@ import Transactions from './pages/Transactions';
 import Cards from './pages/Cards';
 import Forecast from './pages/Forecast';
 import Settings from './pages/Settings';
+import Onboarding from './pages/Onboarding';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Routes that should have the Layout */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/wallet" element={<Wallet />} />
@@ -48,6 +50,9 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
+
+        {/* Onboarding route, protected but without the default Layout */}
+        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   );

@@ -4,7 +4,9 @@ import MobileNavbar from './MobileNavbar';
 import { Settings, LogOut, User } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAccounts } from '../hooks/useAccounts';
+import { useEffect } from 'react';
 
 interface LayoutProps {
     children: ReactNode;
@@ -14,6 +16,14 @@ const Layout = ({ children }: LayoutProps) => {
     const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
     const { signOut } = useAuth();
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const { accounts, isLoading } = useAccounts();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isLoading && accounts && accounts.length === 0) {
+            navigate('/onboarding');
+        }
+    }, [accounts, isLoading, navigate]);
 
     return (
         <div className="min-h-screen bg-cream flex flex-col md:flex-row pb-20 md:pb-0">
@@ -46,14 +56,14 @@ const Layout = ({ children }: LayoutProps) => {
                                     onClick={() => setIsProfileMenuOpen(false)}
                                 >
                                     <Settings size={18} />
-                                    Settings
+                                    Configurações
                                 </Link>
                                 <button
                                     onClick={signOut}
                                     className="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-red-50 w-full text-left"
                                 >
                                     <LogOut size={18} />
-                                    Logout
+                                    Sair
                                 </button>
                             </div>
                         </>

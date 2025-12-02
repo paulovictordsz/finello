@@ -1,4 +1,4 @@
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { supabase } from '../lib/supabase';
 
 export interface Category {
@@ -6,6 +6,7 @@ export interface Category {
     name: string;
     type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
     icon?: string;
+    user_id?: string | null;
 }
 
 const fetcher = async () => {
@@ -21,9 +22,33 @@ const fetcher = async () => {
 export function useCategories() {
     const { data, error, isLoading } = useSWR('categories', fetcher);
 
+    const createCategory = async (category: Omit<Category, 'id'>) => {
+        const { data: newCategory, error } = await supabase
+            .from('categories')
+            .insert(category)
+            .select()
+            .single();
+
+        if (error) throw error;
+        mutate('categories');
+        return newCategory;
+    };
+
+    const deleteCategory = async (id: string) => {
+        const { error } = await supabase
+            .from('categories')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        mutate('categories');
+    };
+
     return {
         categories: data,
         isLoading,
         isError: error,
+        createCategory,
+        deleteCategory
     };
 }
