@@ -9,10 +9,13 @@ import { formatCurrency } from '../utils/format';
 import { clsx } from 'clsx';
 import { useAuth } from '../contexts/AuthContext';
 
+import { useTransactions } from '../hooks/useTransactions';
+
 export default function Forecast() {
     const { user } = useAuth();
     const { accounts, isLoading: isLoadingAccounts } = useAccounts();
     const { recurrings, isLoading: isLoadingRecurrings, createRecurring } = useRecurrings();
+    const { transactions, isLoading: isLoadingTransactions } = useTransactions();
     const { categories } = useCategories();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,9 +30,9 @@ export default function Forecast() {
     });
 
     const forecast = useMemo(() => {
-        if (!accounts || !recurrings) return [];
-        return calculateForecast(accounts, recurrings);
-    }, [accounts, recurrings]);
+        if (!accounts || !recurrings || !transactions) return [];
+        return calculateForecast(accounts, recurrings, transactions);
+    }, [accounts, recurrings, transactions]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,7 +59,7 @@ export default function Forecast() {
         }
     };
 
-    if (isLoadingAccounts || isLoadingRecurrings) {
+    if (isLoadingAccounts || isLoadingRecurrings || isLoadingTransactions) {
         return (
             <div className="flex items-center justify-center h-96">
                 <Loader2 className="animate-spin text-primary" size={40} />

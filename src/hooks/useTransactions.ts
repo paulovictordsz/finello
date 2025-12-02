@@ -14,6 +14,9 @@ export interface Transaction {
     to_account_id?: string;
     category?: { name: string; icon?: string };
     account?: { name: string };
+    card_id?: string;
+    installment_number?: number;
+    total_installments?: number;
 }
 
 const fetcher = async () => {

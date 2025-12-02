@@ -51,7 +51,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/wallet" element={<Wallet />} />
-          <Route path="/analytics" element={<Forecast />} />
+          <Route path="/forecast" element={<Forecast />} />
           <Route path="/cards" element={<Cards />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/settings" element={<Settings />} />

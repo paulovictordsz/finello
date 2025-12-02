@@ -44,11 +44,22 @@ export function useCategories() {
         mutate('categories');
     };
 
+    const updateCategory = async (id: string, updates: Partial<Category>) => {
+        const { error } = await supabase
+            .from('categories')
+            .update(updates)
+            .eq('id', id);
+
+        if (error) throw error;
+        mutate('categories');
+    };
+
     return {
         categories: data,
         isLoading,
         isError: error,
         createCategory,
-        deleteCategory
+        deleteCategory,
+        updateCategory
     };
 }

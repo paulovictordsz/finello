@@ -74,16 +74,16 @@ create policy "Users can update/delete own categories" on public.categories
 
 -- Insert Default Categories
 insert into public.categories (name, type, icon) values
-  ('Salary', 'INCOME', 'Briefcase'),
+  ('Salário', 'INCOME', 'Briefcase'),
   ('Freelance', 'INCOME', 'Laptop'),
-  ('Investments', 'INCOME', 'TrendingUp'),
-  ('Housing', 'EXPENSE', 'Home'),
-  ('Food', 'EXPENSE', 'Utensils'),
-  ('Transport', 'EXPENSE', 'Car'),
-  ('Health', 'EXPENSE', 'Heart'),
-  ('Leisure', 'EXPENSE', 'Smile'),
-  ('Education', 'EXPENSE', 'GraduationCap'),
-  ('Shopping', 'EXPENSE', 'ShoppingBag');
+  ('Investimentos', 'INCOME', 'TrendingUp'),
+  ('Moradia', 'EXPENSE', 'Home'),
+  ('Alimentação', 'EXPENSE', 'Utensils'),
+  ('Transporte', 'EXPENSE', 'Car'),
+  ('Saúde', 'EXPENSE', 'Heart'),
+  ('Lazer', 'EXPENSE', 'Smile'),
+  ('Educação', 'EXPENSE', 'GraduationCap'),
+  ('Compras', 'EXPENSE', 'ShoppingBag');
 
 -- 4. CARDS
 create table public.cards (
