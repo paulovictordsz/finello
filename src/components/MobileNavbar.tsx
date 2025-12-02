@@ -21,7 +21,7 @@ export default function MobileNavbar() {
                         className={({ isActive }) => clsx(
                             "flex flex-col items-center justify-center transition-all duration-200",
                             item.isPrimary
-                                ? "absolute left-1/2 -translate-x-1/2 -top-6 bg-primary text-white shadow-lg shadow-primary/30 w-14 h-14 rounded-full border-4 border-cream"
+                                ? "bg-primary text-white shadow-lg shadow-primary/30 w-14 h-14 rounded-full -mt-8 border-4 border-white/20"
                                 : "h-full text-gray-400 hover:text-gray-600",
                             !item.isPrimary && isActive && "text-primary"
                         )}
