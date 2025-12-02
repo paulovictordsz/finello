@@ -82,14 +82,14 @@ export default function Transactions() {
 
     return (
         <div className="space-y-8">
-            <header className="flex items-center justify-between">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-secondary">Transactions</h1>
                     <p className="text-gray-500 text-sm mt-1">Track your income and expenses</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors"
+                    className="flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
                     Add Transaction
