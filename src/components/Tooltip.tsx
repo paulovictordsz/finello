@@ -12,7 +12,7 @@ export const Tooltip = ({ children, content, className }: TooltipProps) => {
 
     return (
         <div
-            className={clsx("relative inline-block", className)}
+            className={clsx("relative block", className)}
             onMouseEnter={() => setIsVisible(true)}
             onMouseLeave={() => setIsVisible(false)}
         >

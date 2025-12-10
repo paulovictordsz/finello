@@ -14,6 +14,7 @@ export function useDashboardData() {
                 monthlyIncome: 0,
                 monthlyExpense: 0,
                 recentTransactions: [],
+                expensesToday: 0,
             };
         }
 
@@ -42,11 +43,18 @@ export function useDashboardData() {
         // 3. Recent Transactions (Limit 5)
         const recentTransactions = transactions.slice(0, 5);
 
+        // 4. Expenses Today
+        const todayStr = new Date().toISOString().split('T')[0];
+        const expensesToday = transactions
+            .filter(t => t.type === 'EXPENSE' && t.date === todayStr)
+            .reduce((sum, t) => sum + t.amount, 0);
+
         return {
             totalBalance,
             monthlyIncome,
             monthlyExpense,
             recentTransactions,
+            expensesToday,
         };
     }, [accounts, transactions]);
 

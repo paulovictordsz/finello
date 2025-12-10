@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useCategories, type Category } from '../hooks/useCategories';
 import { useBudgets } from '../hooks/useBudgets';
-import { Loader2, Tag, Plus, Trash2, X, Pencil, Wallet } from 'lucide-react';
+import { Loader2, Tag, Plus, Trash2, X, Pencil, Wallet, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 import CurrencyInput from '../components/CurrencyInput';
+import Modal from '../components/Modal';
 
 export default function Settings() {
     const { categories, isLoading, createCategory, deleteCategory, updateCategory } = useCategories();
@@ -14,6 +15,7 @@ export default function Settings() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSavingBudget, setIsSavingBudget] = useState(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [formData, setFormData] = useState({
@@ -71,7 +73,7 @@ export default function Settings() {
         setIsSavingBudget(true);
         try {
             await updateBudget(Number(budgetAmount));
-            alert('Meta mensal atualizada com sucesso!');
+            setIsSuccessModalOpen(true);
         } catch (error) {
             console.error('Failed to save budget:', error);
             alert('Erro ao salvar meta mensal.');
@@ -292,6 +294,30 @@ export default function Settings() {
                     </div>
                 </div>
             )}
+            {/* Success Modal */}
+            <Modal
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
+                title="Sucesso"
+            >
+                <div className="flex flex-col items-center justify-center py-4 text-center space-y-4">
+                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle size={32} />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-secondary">Meta Atualizada!</h3>
+                        <p className="text-gray-500 mt-1">
+                            Sua meta de gastos mensal foi salva com sucesso.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setIsSuccessModalOpen(false)}
+                        className="w-full bg-primary text-white py-2 rounded-xl font-medium hover:bg-primary/90 transition-colors mt-4"
+                    >
+                        Entendi
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 }

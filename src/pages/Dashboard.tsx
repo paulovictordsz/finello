@@ -13,7 +13,7 @@ import { Tooltip } from '../components/Tooltip';
 
 const Dashboard = () => {
     const { user } = useAuth();
-    const { totalBalance, monthlyIncome, monthlyExpense, recentTransactions, isLoading } = useDashboardData();
+    const { totalBalance, monthlyIncome, monthlyExpense, recentTransactions, expensesToday, isLoading } = useDashboardData();
     const { budget, isLoading: isLoadingBudget } = useBudgets();
 
     const smartBudget = useMemo(() => {
@@ -29,13 +29,8 @@ const Dashboard = () => {
         // Wait, calculateSmartBudget needs "expensesToday".
         // Let's assume 0 for now to show the POTENTIAL limit, or try to filter from recentTransactions if they are from today.
 
-        const todayStr = new Date().toISOString().split('T')[0];
-        const expensesToday = recentTransactions
-            .filter(t => t.type === 'EXPENSE' && t.date === todayStr)
-            .reduce((sum, t) => sum + t.amount, 0);
-
         return calculateSmartBudget(budget.amount, monthlyExpense, expensesToday);
-    }, [budget, monthlyExpense, recentTransactions]);
+    }, [budget, monthlyExpense, expensesToday]);
 
     if (isLoading || isLoadingBudget) {
         return (
@@ -128,7 +123,7 @@ const Dashboard = () => {
                                         style={{ width: `${Math.min(100, (smartBudget.spentToday / smartBudget.dailyLimit) * 100)}%` }}
                                     ></div>
                                 </div>
-                                <Tooltip content={smartBudget.message}>
+                                <Tooltip content={smartBudget.message} className="w-full">
                                     <p className="text-xs text-gray-400 mt-1.5 truncate cursor-help">{smartBudget.message}</p>
                                 </Tooltip>
                             </div>
