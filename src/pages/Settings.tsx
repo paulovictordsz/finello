@@ -1,19 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCategories, type Category } from '../hooks/useCategories';
-import { Loader2, Tag, Plus, Trash2, X, Pencil } from 'lucide-react';
+import { useBudgets } from '../hooks/useBudgets';
+import { Loader2, Tag, Plus, Trash2, X, Pencil, Wallet } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
+import CurrencyInput from '../components/CurrencyInput';
 
 export default function Settings() {
     const { categories, isLoading, createCategory, deleteCategory, updateCategory } = useCategories();
+    const { budget, isLoading: isLoadingBudget, updateBudget } = useBudgets();
     const { user, signOut, updateProfile } = useAuth();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSavingBudget, setIsSavingBudget] = useState(false);
+
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         type: 'EXPENSE' as 'INCOME' | 'EXPENSE'
     });
+
+    const [budgetAmount, setBudgetAmount] = useState('');
+
+    useEffect(() => {
+        if (budget) {
+            setBudgetAmount(budget.amount.toString());
+        }
+    }, [budget]);
 
     const handleOpenModal = (category?: Category) => {
         if (category) {
@@ -52,6 +66,20 @@ export default function Settings() {
         }
     };
 
+    const handleSaveBudget = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSavingBudget(true);
+        try {
+            await updateBudget(Number(budgetAmount));
+            alert('Meta mensal atualizada com sucesso!');
+        } catch (error) {
+            console.error('Failed to save budget:', error);
+            alert('Erro ao salvar meta mensal.');
+        } finally {
+            setIsSavingBudget(false);
+        }
+    };
+
     const handleDeleteCategory = async (id: string) => {
         if (confirm('Tem certeza que deseja excluir esta categoria?')) {
             try {
@@ -62,7 +90,7 @@ export default function Settings() {
         }
     };
 
-    if (isLoading) {
+    if (isLoading || isLoadingBudget) {
         return (
             <div className="flex items-center justify-center h-96">
                 <Loader2 className="animate-spin text-primary" size={40} />
@@ -133,6 +161,34 @@ export default function Settings() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Budget Settings */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-3 mb-4 text-secondary">
+                    <Wallet size={20} />
+                    <h2 className="text-lg font-bold">Meta de Gastos Mensal</h2>
+                </div>
+                <p className="text-gray-500 text-sm mb-4">
+                    Defina um limite de gastos para o mês. Usaremos isso para calcular sua meta diária inteligente.
+                </p>
+                <form onSubmit={handleSaveBudget} className="flex gap-2 max-w-md">
+                    <div className="flex-1">
+                        <CurrencyInput
+                            value={budgetAmount}
+                            onChange={(val) => setBudgetAmount(val.toString())}
+                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                            placeholder="R$ 0,00"
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={isSavingBudget}
+                        className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors font-medium disabled:opacity-50 flex items-center justify-center min-w-[100px]"
+                    >
+                        {isSavingBudget ? <Loader2 className="animate-spin" size={20} /> : 'Salvar'}
+                    </button>
+                </form>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">

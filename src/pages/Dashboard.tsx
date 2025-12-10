@@ -1,17 +1,42 @@
-import { Bell, Search, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { Bell, Search, TrendingUp, TrendingDown, Wallet, AlertCircle, PiggyBank, ThumbsUp } from 'lucide-react';
 import { useDashboardData } from '../hooks/useDashboardData';
+import { useBudgets } from '../hooks/useBudgets';
+import { calculateSmartBudget } from '../utils/smartBudget';
 import { formatCurrency } from '../utils/format';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
 import { useAuth } from '../contexts/AuthContext';
+import { useMemo } from 'react';
+import { clsx } from 'clsx';
 
 const Dashboard = () => {
     const { user } = useAuth();
     const { totalBalance, monthlyIncome, monthlyExpense, recentTransactions, isLoading } = useDashboardData();
+    const { budget, isLoading: isLoadingBudget } = useBudgets();
 
-    if (isLoading) {
+    const smartBudget = useMemo(() => {
+        if (!budget) return null;
+        // We need expenses for TODAY. 
+        // For MVP, let's assume monthlyExpense is total expenses for the month, 
+        // and we don't have exact "today" expenses easily available without filtering transactions again.
+        // Let's filter recentTransactions for today? Or better, useTransactions if available.
+        // Since useDashboardData doesn't give us ALL transactions, this is an approximation.
+        // Ideally we should fetch today's expenses specifically.
+        // For now, let's assume 0 for "today" expenses to calculate the limit, 
+        // or just use the monthly data to show "Remaining for Today" based on average?
+        // Wait, calculateSmartBudget needs "expensesToday".
+        // Let's assume 0 for now to show the POTENTIAL limit, or try to filter from recentTransactions if they are from today.
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        const expensesToday = recentTransactions
+            .filter(t => t.type === 'EXPENSE' && t.date === todayStr)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        return calculateSmartBudget(budget.amount, monthlyExpense, expensesToday);
+    }, [budget, monthlyExpense, recentTransactions]);
+
+    if (isLoading || isLoadingBudget) {
         return (
             <div className="flex items-center justify-center h-full">
                 <Loader2 className="animate-spin text-primary" size={32} />
@@ -48,6 +73,67 @@ const Dashboard = () => {
                     </div>
                 </div>
             </header>
+
+            {/* Smart Budget Widget */}
+            {smartBudget && (
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+
+                    <div className="relative z-10">
+                        <div className="flex items-start justify-between mb-6">
+                            <div>
+                                <h2 className="text-lg font-medium opacity-90 mb-1">Meta Diária Inteligente</h2>
+                                <p className="text-sm opacity-75">{smartBudget.message}</p>
+                            </div>
+                            <div className={clsx(
+                                "p-2 rounded-lg bg-white/20 backdrop-blur-sm",
+                                smartBudget.status === 'SAFE' && "text-white",
+                                smartBudget.status === 'WARNING' && "text-yellow-200",
+                                smartBudget.status === 'SAVING' && "text-green-200",
+                                smartBudget.status === 'EXCEEDED' && "text-red-200",
+                            )}>
+                                {smartBudget.status === 'SAFE' && <ThumbsUp size={24} />}
+                                {smartBudget.status === 'WARNING' && <AlertCircle size={24} />}
+                                {smartBudget.status === 'SAVING' && <PiggyBank size={24} />}
+                                {smartBudget.status === 'EXCEEDED' && <AlertCircle size={24} />}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-8">
+                            <div>
+                                <p className="text-sm opacity-75 mb-1">Pode gastar hoje</p>
+                                <p className="text-3xl font-bold">{formatCurrency(Math.max(0, smartBudget.remainingForToday))}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm opacity-75 mb-1">Gasto hoje</p>
+                                <p className="text-2xl font-semibold">{formatCurrency(smartBudget.spentToday)}</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6">
+                            <div className="flex justify-between text-xs opacity-75 mb-2">
+                                <span>Progresso do Mês ({Math.round(smartBudget.monthProgress)}%)</span>
+                                <span>Orçamento Usado ({Math.round(smartBudget.budgetProgress)}%)</span>
+                            </div>
+                            <div className="h-2 bg-black/20 rounded-full overflow-hidden flex">
+                                <div
+                                    className="h-full bg-white/50"
+                                    style={{ width: `${smartBudget.monthProgress}%` }}
+                                    title="Progresso do Mês"
+                                ></div>
+                                <div
+                                    className={clsx(
+                                        "h-full transition-all duration-500",
+                                        smartBudget.budgetProgress > 100 ? "bg-red-400" : "bg-white"
+                                    )}
+                                    style={{ width: `${smartBudget.budgetProgress}%`, marginLeft: `-${smartBudget.monthProgress}%` }}
+                                    title="Orçamento Usado"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
