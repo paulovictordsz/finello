@@ -58,8 +58,9 @@ export function useBudgets() {
             if (error) throw error;
             setBudget(data);
             return data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating budget:', error);
+            console.error('Error details:', error.message, error.details, error.hint);
             throw error;
         }
     };
