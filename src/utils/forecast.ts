@@ -11,12 +11,14 @@ export interface MonthlyForecast {
     expense: number;
     endingBalance: number;
     isNegative: boolean;
+    cardRisk: boolean; // New: Risk alert if card expenses > X% of income
 }
 
 export function calculateForecast(
     accounts: Account[],
     recurrings: Recurring[],
-    transactions: any[] = [], // Using any for now to avoid circular dependency or complex type import if not needed
+    transactions: any[] = [],
+    simulatedItems: any[] = [], // New: Simulated items (recurrings or one-time)
     monthsToProject: number = 12
 ): MonthlyForecast[] {
     const currentTotalBalance = accounts.reduce((sum, acc) => sum + acc.initial_balance, 0);
@@ -25,6 +27,12 @@ export function calculateForecast(
     const forecast: MonthlyForecast[] = [];
     const today = new Date();
 
+    // Combine real recurrings with simulated recurrings
+    const allRecurrings = [...recurrings, ...simulatedItems.filter(i => i.frequency)];
+    // Simulated one-time transactions could be handled too if we had a structure for them
+    // For now assuming simulated items are recurrings or simple one-time adjustments treated as transactions
+    const simulatedTransactions = simulatedItems.filter(i => !i.frequency);
+
     for (let i = 0; i < monthsToProject; i++) {
         const currentMonthDate = addMonths(today, i);
         const monthKey = format(currentMonthDate, 'yyyy-MM');
@@ -32,9 +40,10 @@ export function calculateForecast(
 
         let monthlyIncome = 0;
         let monthlyExpense = 0;
+        let monthlyCardExpense = 0; // Track card expenses for risk calculation
 
         // 1. Calculate recurring transactions for this month
-        recurrings.forEach(rec => {
+        allRecurrings.forEach(rec => {
             const startDate = parseISO(rec.start_date);
             const endDate = rec.end_date ? parseISO(rec.end_date) : null;
 
@@ -46,32 +55,37 @@ export function calculateForecast(
                     monthlyIncome += rec.amount;
                 } else {
                     monthlyExpense += rec.amount;
+                    // If we had a way to know if a recurring is a card expense, we'd add to monthlyCardExpense
+                    // For now, let's assume recurrings are usually fixed bills or subscriptions, 
+                    // unless explicitly marked (which we don't have).
                 }
             }
         });
 
         // 2. Calculate scheduled transactions for this month
-        // Filter transactions that happen in this month
         const monthStart = startOfMonth(currentMonthDate);
         const monthEnd = addMonths(monthStart, 1);
 
-        transactions.forEach(t => {
+        [...transactions, ...simulatedTransactions].forEach(t => {
             const tDate = parseISO(t.date);
-            // Check if transaction is within the month [start, end)
-            // isAfter is strict (>), isBefore is strict (<)
-            // We want tDate >= monthStart && tDate < monthEnd
-            // equivalent to: !isBefore(tDate, monthStart) && isBefore(tDate, monthEnd)
             if (!isBefore(tDate, monthStart) && isBefore(tDate, monthEnd)) {
                 if (t.type === 'INCOME') {
                     monthlyIncome += t.amount;
                 } else if (t.type === 'EXPENSE') {
                     monthlyExpense += t.amount;
+                    if (t.card_id) {
+                        monthlyCardExpense += t.amount;
+                    }
                 }
             }
         });
 
         const startingBalance = runningBalance;
         const endingBalance = startingBalance + monthlyIncome - monthlyExpense;
+
+        // Risk Alert Logic: Card Invoice > 40% of Income
+        // Note: monthlyIncome might be 0 if user has no income registered, avoiding division by zero
+        const cardRisk = monthlyIncome > 0 && (monthlyCardExpense / monthlyIncome) > 0.4;
 
         forecast.push({
             month: monthKey,
@@ -81,6 +95,7 @@ export function calculateForecast(
             expense: monthlyExpense,
             endingBalance,
             isNegative: endingBalance < 0,
+            cardRisk,
         });
 
         runningBalance = endingBalance;
