@@ -1,4 +1,4 @@
-import { Bell, Search, TrendingUp, TrendingDown, Wallet, AlertCircle, PiggyBank, ThumbsUp } from 'lucide-react';
+import { Bell, Search, TrendingUp, TrendingDown, Wallet, AlertCircle, ThumbsUp, ArrowUpRight } from 'lucide-react';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useBudgets } from '../hooks/useBudgets';
 import { calculateSmartBudget } from '../utils/smartBudget';
@@ -9,6 +9,7 @@ import { ptBR } from 'date-fns/locale';
 import { useAuth } from '../contexts/AuthContext';
 import { useMemo } from 'react';
 import { clsx } from 'clsx';
+import { Tooltip } from '../components/Tooltip';
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -45,150 +46,163 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {/* Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">
-                        Bom dia, {user?.user_metadata.full_name?.split(' ')[0] || 'Usuário'}! 👋
+                    <h1 className="text-xl font-bold text-secondary">
+                        Dashboard
                     </h1>
-                    <p className="text-gray-500 text-sm mt-1">Aqui está o resumo das suas finanças hoje.</p>
+                    <p className="text-gray-500 text-xs mt-0.5">Visão geral das suas finanças</p>
                 </div>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex items-center gap-3 w-full md:w-auto">
                     <div className="relative flex-1 md:flex-none">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
                             placeholder="Buscar..."
-                            className="pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white w-full md:w-64"
+                            className="pl-9 pr-4 py-1.5 rounded-lg border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white w-full md:w-64 text-sm"
                         />
                     </div>
-                    <button className="p-2 rounded-xl bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 relative">
-                        <Bell size={20} />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    <button className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 relative">
+                        <Bell size={18} />
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
                     </button>
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0 text-sm">
                         {user?.user_metadata.full_name?.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'U'}
                     </div>
                 </div>
             </header>
 
-            {/* Smart Budget Widget */}
-            {smartBudget && (
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-start justify-between mb-6">
-                            <div>
-                                <h2 className="text-lg font-medium opacity-90 mb-1">Meta Diária Inteligente</h2>
-                                <p className="text-sm opacity-75">{smartBudget.message}</p>
-                            </div>
-                            <div className={clsx(
-                                "p-2 rounded-lg bg-white/20 backdrop-blur-sm",
-                                smartBudget.status === 'SAFE' && "text-white",
-                                smartBudget.status === 'WARNING' && "text-yellow-200",
-                                smartBudget.status === 'SAVING' && "text-green-200",
-                                smartBudget.status === 'EXCEEDED' && "text-red-200",
-                            )}>
-                                {smartBudget.status === 'SAFE' && <ThumbsUp size={24} />}
-                                {smartBudget.status === 'WARNING' && <AlertCircle size={24} />}
-                                {smartBudget.status === 'SAVING' && <PiggyBank size={24} />}
-                                {smartBudget.status === 'EXCEEDED' && <AlertCircle size={24} />}
-                            </div>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Balance */}
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">Saldo Total</span>
+                        <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+                            <Wallet size={16} />
                         </div>
-
-                        <div className="grid grid-cols-2 gap-8">
-                            <div>
-                                <p className="text-sm opacity-75 mb-1">Pode gastar hoje</p>
-                                <p className="text-3xl font-bold">{formatCurrency(Math.max(0, smartBudget.remainingForToday))}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-sm opacity-75 mb-1">Gasto hoje</p>
-                                <p className="text-2xl font-semibold">{formatCurrency(smartBudget.spentToday)}</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-6">
-                            <div className="flex justify-between text-xs opacity-75 mb-2">
-                                <span>Progresso do Mês ({Math.round(smartBudget.monthProgress)}%)</span>
-                                <span>Orçamento Usado ({Math.round(smartBudget.budgetProgress)}%)</span>
-                            </div>
-                            <div className="h-2 bg-black/20 rounded-full overflow-hidden flex">
-                                <div
-                                    className="h-full bg-white/50"
-                                    style={{ width: `${smartBudget.monthProgress}%` }}
-                                    title="Progresso do Mês"
-                                ></div>
-                                <div
-                                    className={clsx(
-                                        "h-full transition-all duration-500",
-                                        smartBudget.budgetProgress > 100 ? "bg-red-400" : "bg-white"
-                                    )}
-                                    style={{ width: `${smartBudget.budgetProgress}%`, marginLeft: `-${smartBudget.monthProgress}%` }}
-                                    title="Orçamento Usado"
-                                ></div>
-                            </div>
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-secondary">{formatCurrency(totalBalance)}</h2>
+                        <div className="flex items-center gap-1 mt-1">
+                            <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                                <ArrowUpRight size={12} /> +2.5%
+                            </span>
+                            <span className="text-xs text-gray-400">vs mês anterior</span>
                         </div>
                     </div>
                 </div>
-            )}
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-primary text-white p-6 rounded-2xl shadow-lg shadow-primary/20">
-                    <div className="flex items-center gap-3 mb-4 opacity-80">
-                        <Wallet size={20} />
-                        <span className="font-medium">Saldo Total</span>
-                    </div>
-                    <h2 className="text-3xl font-bold">{formatCurrency(totalBalance)}</h2>
-                    <p className="text-sm mt-2 opacity-80">Em todas as contas</p>
+                {/* Smart Daily Limit */}
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between relative">
+                    {smartBudget ? (
+                        <>
+                            <div className="flex items-center justify-between mb-2 relative z-10">
+                                <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">Meta Diária</span>
+                                <div className={clsx(
+                                    "p-1.5 rounded-lg",
+                                    smartBudget.status === 'SAFE' ? "bg-green-50 text-green-600" :
+                                        smartBudget.status === 'WARNING' ? "bg-yellow-50 text-yellow-600" :
+                                            "bg-red-50 text-red-600"
+                                )}>
+                                    {smartBudget.status === 'SAFE' ? <ThumbsUp size={16} /> : <AlertCircle size={16} />}
+                                </div>
+                            </div>
+                            <div className="relative z-10">
+                                <div className="flex items-baseline gap-2">
+                                    <h2 className="text-2xl font-bold text-secondary">
+                                        {formatCurrency(Math.max(0, smartBudget.remainingForToday))}
+                                    </h2>
+                                    <span className="text-xs text-gray-400">disponível hoje</span>
+                                </div>
+                                <div className="mt-2 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                        className={clsx(
+                                            "h-full rounded-full transition-all duration-500",
+                                            smartBudget.status === 'SAFE' ? "bg-green-500" :
+                                                smartBudget.status === 'WARNING' ? "bg-yellow-500" : "bg-red-500"
+                                        )}
+                                        style={{ width: `${Math.min(100, (smartBudget.spentToday / smartBudget.dailyLimit) * 100)}%` }}
+                                    ></div>
+                                </div>
+                                <Tooltip content={smartBudget.message}>
+                                    <p className="text-xs text-gray-400 mt-1.5 truncate cursor-help">{smartBudget.message}</p>
+                                </Tooltip>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                            <p className="text-sm text-gray-500">Defina uma meta mensal</p>
+                            <a href="/settings" className="text-xs text-primary font-medium mt-1 hover:underline">Configurar</a>
+                        </div>
+                    )}
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-4 text-green-500">
-                        <TrendingUp size={20} />
-                        <span className="font-medium">Receita Mensal</span>
+                {/* Monthly Income */}
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">Receitas</span>
+                        <div className="p-1.5 bg-green-50 text-green-600 rounded-lg">
+                            <TrendingUp size={16} />
+                        </div>
                     </div>
-                    <h2 className="text-3xl font-bold text-secondary">{formatCurrency(monthlyIncome)}</h2>
-                    <p className="text-sm text-gray-400 mt-2">Este mês</p>
+                    <div>
+                        <h2 className="text-2xl font-bold text-secondary">{formatCurrency(monthlyIncome)}</h2>
+                        <div className="flex items-center gap-1 mt-1">
+                            <span className="text-xs text-gray-400">Entradas este mês</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-4 text-red-500">
-                        <TrendingDown size={20} />
-                        <span className="font-medium">Despesa Mensal</span>
+                {/* Monthly Expense */}
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-500 text-xs font-medium uppercase tracking-wider">Despesas</span>
+                        <div className="p-1.5 bg-red-50 text-red-600 rounded-lg">
+                            <TrendingDown size={16} />
+                        </div>
                     </div>
-                    <h2 className="text-3xl font-bold text-secondary">{formatCurrency(monthlyExpense)}</h2>
-                    <p className="text-sm text-gray-400 mt-2">Este mês</p>
+                    <div>
+                        <h2 className="text-2xl font-bold text-secondary">{formatCurrency(monthlyExpense)}</h2>
+                        <div className="flex items-center gap-1 mt-1">
+                            <span className="text-xs text-gray-400">Saídas este mês</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Recent Transactions */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-bold text-secondary mb-6">Transações Recentes</h3>
-                <div className="space-y-4">
+            {/* Recent Transactions List */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+                    <h3 className="font-bold text-secondary text-sm">Transações Recentes</h3>
+                    <button className="text-xs text-primary font-medium hover:underline">Ver todas</button>
+                </div>
+                <div className="divide-y divide-gray-50">
                     {recentTransactions.length === 0 ? (
-                        <p className="text-gray-400 text-center py-8">Nenhuma transação encontrada.</p>
+                        <p className="text-gray-400 text-center py-8 text-sm">Nenhuma transação encontrada.</p>
                     ) : (
                         recentTransactions.map((t) => (
-                            <div key={t.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'INCOME' ? 'bg-green-100 text-green-600' :
-                                        t.type === 'EXPENSE' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                            <div key={t.id} className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${t.type === 'INCOME' ? 'bg-green-50 text-green-600' :
+                                        t.type === 'EXPENSE' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
                                         }`}>
-                                        {t.type === 'INCOME' ? <TrendingUp size={18} /> :
-                                            t.type === 'EXPENSE' ? <TrendingDown size={18} /> : <Wallet size={18} />}
+                                        {t.type === 'INCOME' ? <TrendingUp size={14} /> :
+                                            t.type === 'EXPENSE' ? <TrendingDown size={14} /> : <Wallet size={14} />}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-secondary">{t.description}</p>
-                                        <p className="text-sm text-gray-400">
-                                            {format(new Date(t.date), "dd 'de' MMM, yyyy", { locale: ptBR })}
+                                        <Tooltip content={t.description || ''}>
+                                            <p className="font-medium text-secondary text-sm truncate max-w-[150px] md:max-w-xs cursor-help">{t.description}</p>
+                                        </Tooltip>
+                                        <p className="text-xs text-gray-400">
+                                            {format(new Date(t.date), "dd 'de' MMM", { locale: ptBR })}
                                         </p>
                                     </div>
                                 </div>
-                                <span className={`font-bold ${t.type === 'INCOME' ? 'text-green-600' :
+                                <span className={`font-bold text-sm ${t.type === 'INCOME' ? 'text-green-600' :
                                     t.type === 'EXPENSE' ? 'text-red-600' : 'text-blue-600'
                                     }`}>
                                     {t.type === 'EXPENSE' ? '-' : '+'}{formatCurrency(t.amount)}

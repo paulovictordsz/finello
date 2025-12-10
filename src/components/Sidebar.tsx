@@ -23,7 +23,7 @@ const Sidebar = ({ isDesktopCollapsed, onDesktopToggle }: SidebarProps) => {
     const { signOut } = useAuth();
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Início', path: '/' },
+        { icon: LayoutDashboard, label: 'Home', path: '/' },
         { icon: Wallet, label: 'Carteira', path: '/wallet' },
         { icon: PieChart, label: 'Análises', path: '/forecast' },
         { icon: CreditCard, label: 'Cartões', path: '/cards' },
@@ -59,7 +59,8 @@ const Sidebar = ({ isDesktopCollapsed, onDesktopToggle }: SidebarProps) => {
                             "flex items-center gap-3 px-3 py-3 rounded-xl transition-colors duration-200",
                             isActive
                                 ? "bg-primary text-white shadow-md shadow-primary/20"
-                                : "text-gray-500 hover:bg-gray-50 hover:text-primary"
+                                : "text-gray-500 hover:bg-gray-50 hover:text-primary",
+                            "notranslate"
                         )}
                     >
                         <item.icon size={20} />

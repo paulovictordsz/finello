@@ -82,7 +82,7 @@ const Layout = ({ children }: LayoutProps) => {
                     isDesktopCollapsed ? "md:ml-20" : "md:ml-60"
                 )}
             >
-                <div className="max-w-7xl mx-auto">
+                <div className="w-[90%] mx-auto">
                     {children}
                 </div>
             </main>
